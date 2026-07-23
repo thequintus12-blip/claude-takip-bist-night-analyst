@@ -1,0 +1,23 @@
+{
+  "held": [
+    {
+      "ticker": "AKSEN",
+      "entered_on": "2026-07-21",
+      "entry_score": 0.1581,
+      "last_score": 0.1581,
+      "last_signal": "AL",
+      "last_confirmed": true
+    },
+    {
+      "ticker": "TUPRS",
+      "entered_on": "2026-07-21",
+      "entry_score": 0.1525,
+      "last_score": 0.1525,
+      "last_signal": "AL",
+      "last_confirmed": true
+    }
+  ],
+  "cycle_week_start": "2026-07-20",
+  "next_week_candidates": [],
+  "last_run_date": "2026-07-21"
+}

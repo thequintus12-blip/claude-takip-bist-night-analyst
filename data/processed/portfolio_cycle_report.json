@@ -1,0 +1,22 @@
+{
+  "as_of_date": "2026-07-21",
+  "day_type": "hafta_baslangici",
+  "day_type_label": "Yeni Hafta Başlangıcı",
+  "is_thursday_notice": false,
+  "is_friday_liquidation": false,
+  "new_entries": [
+    "AKSEN",
+    "TUPRS"
+  ],
+  "held_after": [
+    "AKSEN",
+    "TUPRS"
+  ],
+  "worsened": [],
+  "swap_suggestions": [],
+  "liquidation_list": [],
+  "next_week_candidates": [],
+  "messages": [
+    "Önceki haftadan devreden bir aday listesi bulunmadığı için takip listesi bugünün analizine göre oluşturuldu."
+  ]
+}
