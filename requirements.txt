@@ -1,0 +1,17 @@
+# Çekirdek bağımlılıklar — Streamlit Cloud üzerinde sorunsuz kurulur
+streamlit>=1.38
+pandas>=2.2
+numpy>=1.26
+yfinance>=0.2.40
+pyarrow>=16.0          # parquet okuma/yazma için
+requests>=2.32
+plotly>=5.22
+pytest>=8.0
+
+# ── Opsiyonel / İleri aşama (varsayılan kurulumda gerekli DEĞİL) ──────────
+# RL denenmek istenirse ayrı bir ortamda şunlar eklenebilir:
+# gymnasium>=0.29
+# stable-baselines3>=2.3
+# LangGraph ile gerçek agent diyaloğu denenmek istenirse:
+# langgraph>=0.2
+# langchain-core>=0.3
