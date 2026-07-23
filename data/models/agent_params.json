@@ -1,0 +1,29 @@
+{
+  "params": {
+    "rsi_period": 19,
+    "rsi_oversold": 32,
+    "rsi_overbought": 66,
+    "macd_fast": 9,
+    "macd_slow": 26,
+    "macd_signal": 9,
+    "ma_short": 50,
+    "ma_long": 200,
+    "adx_period": 14,
+    "adx_trend_threshold": 28,
+    "atr_period": 14,
+    "bb_period": 20,
+    "bb_std": 2.22,
+    "rel_volume_period": 20,
+    "rel_volume_threshold": 2.47,
+    "min_liquidity_try": 1664055.86,
+    "min_risk_reward": 1.1,
+    "extreme_rsi_veto": 89,
+    "atr_stop_multiplier": 2.31,
+    "atr_target_multiplier_base": 1.67,
+    "atr_target_trend_bonus": 1.32,
+    "conflict_penalty": 0.64
+  },
+  "train_fitness": 0.011738393613554903,
+  "out_of_sample_performance": -0.020781975308641978,
+  "optimized_at": "2026-07-18"
+}
