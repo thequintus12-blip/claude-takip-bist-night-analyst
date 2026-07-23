@@ -1,0 +1,161 @@
+name: BIST Night Analyst
+
+on:
+  schedule:
+    # Piyasa kapanışı sonrası, hafta içi her gün 19:00 TRT (UTC+3) -> 16:00 UTC
+    - cron: "0 16 * * 1-5"
+    # Haftalık genetik optimizasyon: Cumartesi 09:00 TRT -> 06:00 UTC
+    - cron: "0 6 * * 6"
+  workflow_dispatch:
+    inputs:
+      run_optimization:
+        description: "Genetik parametre optimizasyonunu da çalıştır"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+# İki job da main dalına yazıyor (commit + push). Aynı anda (örn. manuel
+# tetikleme + zamanlanmış çalışma çakışırsa) iki çalıştırma birbirinin
+# üzerine yazmaya çalışırsa "fetch first" hatası alınır. Bu blok, aynı
+# workflow'un birden fazla çalıştırmasının SIRAYLA (paralel değil)
+# yürütülmesini garanti eder — ikinci çalıştırma iptal edilmez, öncekinin
+# bitmesini bekler.
+concurrency:
+  group: bist-night-analyst-git-write
+  cancel-in-progress: false
+
+jobs:
+  nightly-analysis:
+    if: github.event.schedule == '0 16 * * 1-5' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Python kurulumu
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Bağımlılıkları yükle
+        run: pip install -r requirements.txt
+
+      - name: Gece analizini çalıştır
+        run: python scripts/run_daily_analysis.py
+
+      - name: Look-ahead denetimi
+        run: python scripts/audit_lookahead.py
+
+      - name: Sonuçları commit et
+        run: |
+          git config user.name "bist-night-analyst-bot"
+          git config user.email "actions@github.com"
+          git add data/processed data/models logs
+          if git diff --staged --quiet; then
+            echo "Değişiklik yok, commit atlanıyor."
+            exit 0
+          fi
+          git commit -m "chore: gece analizi sonuçları $(date -u +'%Y-%m-%d')"
+          # concurrency kilidi normalde çakışmayı önler; yine de bir
+          # yarış durumu oluşursa (örn. dıştan bir commit), en son
+          # değişiklikleri alıp üzerine yeniden uygulayarak (rebase)
+          # birkaç kez dener.
+          for i in 1 2 3 4 5; do
+            if git pull --rebase origin main && git push; then
+              break
+            fi
+            echo "Push başarısız (deneme $i/5), kısa bekleme sonrası tekrar denenecek..."
+            sleep $((RANDOM % 10 + 5))
+          done
+
+      - name: Sinyal özetini e-posta ile gönder
+        if: always()
+        uses: dawidd6/action-send-mail@v17
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_APP_PASSWORD }}
+          to: ${{ secrets.EMAIL_TO }}
+          from: "BIST Night Analyst <${{ secrets.EMAIL_USERNAME }}>"
+          subject: "📊 BIST Gece Taraması – ${{ github.run_started_at }}"
+          body: |
+            BIST Night Analyst gece taraması tamamlandı.
+
+            Tarih : ${{ github.run_started_at }}
+            Durum : ${{ job.status }}
+            Commit: https://github.com/${{ github.repository }}/commits/main
+
+            Detaylı sonuçlar için Streamlit arayüzünü açın:
+            https://<uygulamaniz>.streamlit.app
+
+            ---
+            Bu e-posta BIST Night Analyst tarafından otomatik gönderilmiştir.
+            Yatırım tavsiyesi değildir. Nihai karar size aittir.
+
+  weekly-optimization:
+    if: github.event.schedule == '0 6 * * 6' || github.event.inputs.run_optimization == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Python kurulumu
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Bağımlılıkları yükle
+        run: pip install -r requirements.txt
+
+      - name: Genetik optimizasyonu çalıştır
+        run: python scripts/train_model.py
+
+      - name: Parametreleri commit et
+        run: |
+          git config user.name "bist-night-analyst-bot"
+          git config user.email "actions@github.com"
+          git add data/models data/processed
+          if git diff --staged --quiet; then
+            echo "Değişiklik yok, commit atlanıyor."
+            exit 0
+          fi
+          git commit -m "chore: haftalık parametre optimizasyonu $(date -u +'%Y-%m-%d')"
+          for i in 1 2 3 4 5; do
+            if git pull --rebase origin main && git push; then
+              break
+            fi
+            echo "Push başarısız (deneme $i/5), kısa bekleme sonrası tekrar denenecek..."
+            sleep $((RANDOM % 10 + 5))
+          done
+
+      - name: Optimizasyon sonucunu e-posta ile gönder
+        if: always()
+        uses: dawidd6/action-send-mail@v17
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_APP_PASSWORD }}
+          to: ${{ secrets.EMAIL_TO }}
+          from: "BIST Night Analyst <${{ secrets.EMAIL_USERNAME }}>"
+          subject: "🔧 BIST Haftalık Parametre Optimizasyonu – ${{ github.run_started_at }}"
+          body: |
+            Haftalık genetik algoritma optimizasyonu tamamlandı.
+
+            Tarih : ${{ github.run_started_at }}
+            Durum : ${{ job.status }}
+
+            Güncel parametreler data/models/agent_params.json dosyasına kaydedildi.
+            Yarından itibaren gece taramaları bu parametrelerle çalışacak.
+
+            Detay: https://github.com/${{ github.repository }}/commits/main
+
+            ---
+            Bu e-posta BIST Night Analyst tarafından otomatik gönderilmiştir.
