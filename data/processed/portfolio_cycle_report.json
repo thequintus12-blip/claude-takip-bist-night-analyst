@@ -1,22 +1,58 @@
 {
-  "as_of_date": "2026-07-21",
-  "day_type": "hafta_baslangici",
-  "day_type_label": "Yeni Hafta Başlangıcı",
+  "as_of_date": "2026-07-24",
+  "day_type": "cuma_satisi",
+  "day_type_label": "Cuma — Kapanışta Satış",
   "is_thursday_notice": false,
-  "is_friday_liquidation": false,
-  "new_entries": [
+  "is_friday_liquidation": true,
+  "new_entries": [],
+  "held_after": [],
+  "worsened": [
+    {
+      "ticker": "TUPRS",
+      "reason": "Sinyal artık AL değil (şu an: BEKLE)."
+    }
+  ],
+  "swap_suggestions": [
+    {
+      "sell_ticker": "TUPRS",
+      "buy_ticker": "DSTKF",
+      "sell_score": 0.1052,
+      "buy_score": 0.1773,
+      "reason": "worsened"
+    }
+  ],
+  "liquidation_list": [
     "AKSEN",
     "TUPRS"
   ],
-  "held_after": [
+  "next_week_candidates": [
+    "DSTKF",
     "AKSEN",
-    "TUPRS"
+    "ODINE",
+    "IEYHO",
+    "YKBNK"
   ],
-  "worsened": [],
-  "swap_suggestions": [],
-  "liquidation_list": [],
-  "next_week_candidates": [],
-  "messages": [
-    "Önceki haftadan devreden bir aday listesi bulunmadığı için takip listesi bugünün analizine göre oluşturuldu."
-  ]
+  "completed_positions": [
+    {
+      "entered_on": "2026-07-21",
+      "exited_on": "2026-07-24",
+      "ticker": "AKSEN",
+      "entry_price": null,
+      "exit_price": 105.8,
+      "realized_return": null,
+      "holding_days": 3,
+      "exit_reason": "friday_liquidation"
+    },
+    {
+      "entered_on": "2026-07-21",
+      "exited_on": "2026-07-24",
+      "ticker": "TUPRS",
+      "entry_price": null,
+      "exit_price": 304.25,
+      "realized_return": null,
+      "holding_days": 3,
+      "exit_reason": "friday_liquidation"
+    }
+  ],
+  "messages": []
 }
